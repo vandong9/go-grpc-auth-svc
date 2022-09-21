@@ -1,0 +1,53 @@
+/*
+protoc -I=./pkg/pb --go_out=. --go-grpc_out=. auth.proto
+ls ./pkg/auth/pb/auth.pb.go | xargs -n1 -IX bash -c 'sed s/,omitempty// X > X.tmp && mv X{.tmp,}'
+ls ./pkg/auth/pb/auth_grpc.pb.go | xargs -n1 -IX bash -c 'sed s/,omitempty// X > X.tmp && mv X{.tmp,}'
+*/
+
+/* Define the request
+   protoc -I=./ --go_out=./ ./account.proto
+   ls *.pb.go | xargs -n1 -IX bash -c 'sed s/,omitempty// X > X.tmp && mv X{.tmp,}'
+*/
+
+syntax = "proto3";
+
+package auth;
+
+option go_package = "./pkg/auth/pb";
+
+service AuthService {
+  rpc Register(RegisterRequest) returns (RegisterResponse){}
+  rpc Login(LoginRequest) returns (LoginResponse){}
+  rpc Validate(ValidateRequest) returns (ValidateResponse){}
+}
+
+message RegisterRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message RegisterResponse {
+  int64 status = 1;
+  string error = 2;
+}
+
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  int64 status = 1;
+  string error = 2;
+  string token = 3;
+}
+
+message ValidateRequest {
+  string token = 1;
+}
+
+message ValidateResponse {
+  int64 status = 1;
+  string error = 2;
+  string userId = 3;
+}
