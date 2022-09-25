@@ -28,3 +28,19 @@ func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.Reg
 
 	return &pb.RegisterResponse{Status: http.StatusCreated}, nil
 }
+
+func (s *Server) Validate(ctx context.Context, req *pb.ValidateRequest) (*pb.ValidateResponse, error) {
+	_, err := s.Jwt.ValidateToken(req.Token)
+
+	if err != nil {
+		return &pb.ValidateResponse{Status: http.StatusBadRequest, Error: "User not found"}, nil
+	}
+
+	var user models.User
+
+	if result := s.H.DB.Where(&models.User{}).First(&user); result.Error != nil {
+		return &pb.ValidateResponse{Status: http.StatusNotFound, Error: "User not found"}, nil
+	}
+
+	return &pb.ValidateResponse{Status: http.StatusCreated, UserId: user.Id}, nil
+}
