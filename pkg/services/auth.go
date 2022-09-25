@@ -15,6 +15,10 @@ type Server struct {
 	Jwt utils.JwtWrapper
 }
 
+// Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
+// Login(context.Context, *LoginRequest) (*LoginResponse, error)
+// Validate(context.Context, *ValidateRequest) (*ValidateResponse, error)
+
 func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.RegisterResponse, error) {
 	var user models.User
 
@@ -30,7 +34,6 @@ func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.Reg
 }
 
 func (s *Server) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResponse, error) {
-
 	// Find user by email
 	var user models.User
 	if result := s.H.DB.Where(&models.User{Email: req.Email, Password: req.Password}).First(&user); result.Error != nil {
