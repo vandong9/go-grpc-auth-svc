@@ -34,23 +34,30 @@ func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.Reg
 }
 
 func (s *Server) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResponse, error) {
-	// Find user by email
 	var user models.User
-	if result := s.H.DB.Where(&models.User{Email: req.Email, Password: req.Password}).First(&user); result.Error != nil {
-		return &pb.LoginResponse{Status: http.StatusNotFound, Error: "User not found"}, nil
+
+	if result := s.H.DB.Where(&models.User{Email: req.Email}).First(&user); result.Error != nil {
+		return &pb.LoginResponse{
+			Status: http.StatusNotFound,
+			Error:  "User not found",
+		}, nil
 	}
 
-	// verify password
 	match := utils.CheckPasswordHash(req.Password, user.Password)
 
 	if !match {
-		return &pb.LoginResponse{Status: http.StatusNotFound}, nil
+		return &pb.LoginResponse{
+			Status: http.StatusNotFound,
+			Error:  "User not found",
+		}, nil
 	}
 
 	token, _ := s.Jwt.GenerateToken(user)
 
-	return &pb.LoginResponse{Status: http.StatusCreated, Token: token}, nil
-
+	return &pb.LoginResponse{
+		Status: http.StatusOK,
+		Token:  token,
+	}, nil
 }
 
 func (s *Server) Validate(ctx context.Context, req *pb.ValidateRequest) (*pb.ValidateResponse, error) {
@@ -67,4 +74,8 @@ func (s *Server) Validate(ctx context.Context, req *pb.ValidateRequest) (*pb.Val
 	}
 
 	return &pb.ValidateResponse{Status: http.StatusCreated, UserId: user.Id}, nil
+}
+
+func (s *Server) mustEmbedUnimplementedAuthServiceServer() {
+
 }
