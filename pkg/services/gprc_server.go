@@ -10,12 +10,12 @@ import (
 	"github.com/vandong9/go-grpc-auth-svc/pkg/utils"
 )
 
-type Server struct {
+type GprcServer struct {
 	H   db.Handler
 	Jwt utils.JwtWrapper
 }
 
-func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.RegisterResponse, error) {
+func (s *GprcServer) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.RegisterResponse, error) {
 	var user models.User
 
 	if result := s.H.DB.Where(&models.User{Email: req.Email}).First(&user); result.Error == nil {
@@ -26,6 +26,7 @@ func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.Reg
 	}
 
 	user.Email = req.Email
+
 	user.Password = utils.HashPassword(req.Password)
 
 	s.H.DB.Create(&user)
@@ -35,7 +36,7 @@ func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.Reg
 	}, nil
 }
 
-func (s *Server) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResponse, error) {
+func (s *GprcServer) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResponse, error) {
 	var user models.User
 
 	if result := s.H.DB.Where(&models.User{Email: req.Email}).First(&user); result.Error != nil {
@@ -62,7 +63,7 @@ func (s *Server) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResp
 	}, nil
 }
 
-func (s *Server) Validate(ctx context.Context, req *pb.ValidateRequest) (*pb.ValidateResponse, error) {
+func (s *GprcServer) Validate(ctx context.Context, req *pb.ValidateRequest) (*pb.ValidateResponse, error) {
 	claims, err := s.Jwt.ValidateToken(req.Token)
 
 	if err != nil {

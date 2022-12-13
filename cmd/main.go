@@ -4,12 +4,17 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"net/http"
 
 	"google.golang.org/grpc"
 
+	"github.com/sirupsen/logrus"
 	"github.com/vandong9/go-grpc-auth-svc/pkg/config"
 	"github.com/vandong9/go-grpc-auth-svc/pkg/db"
+	"github.com/vandong9/go-grpc-auth-svc/pkg/endpoint"
+	"github.com/vandong9/go-grpc-auth-svc/pkg/middleware"
 	"github.com/vandong9/go-grpc-auth-svc/pkg/pb"
+	"github.com/vandong9/go-grpc-auth-svc/pkg/router"
 	"github.com/vandong9/go-grpc-auth-svc/pkg/services"
 	"github.com/vandong9/go-grpc-auth-svc/pkg/utils"
 )
@@ -21,7 +26,7 @@ func main() {
 		log.Fatalln("Failed at config", err)
 	}
 
-	h := db.Init(c.DBUrl)
+	repository := db.Init(c.DBUrl)
 
 	jwt := utils.JwtWrapper{
 		SecretKey:       c.JWTSecretKey,
@@ -37,11 +42,12 @@ func main() {
 
 	fmt.Println("Auth Svc on", c.Port)
 
-	s := services.Server{
-		H:   h,
+	s := services.GprcServer{
+		H:   repository,
 		Jwt: jwt,
 	}
 
+	// Create gprc Server
 	grpcServer := grpc.NewServer()
 
 	pb.RegisterAuthServiceServer(grpcServer, &s)
@@ -49,4 +55,25 @@ func main() {
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalln("Failed to serve:", err)
 	}
+
+	// Create http server
+
+	var (
+		endpoints = endpoint.MakeEndpoints(services.HttpSever{})
+
+		logger = logrus.New()
+		h      = router.NewHandler(endpoints, logger)
+		m      = middleware.NewMiddleware(logger)
+		port   = c.Port
+
+		server = http.Server{
+			Addr:    fmt.Sprintf(":%s", port),
+			Handler: h.MakeHandlers(m),
+		}
+	)
+
+	if err := server.ListenAndServe(); err != nil {
+		log.Fatalf("Running HTTP server: %v", err)
+	}
+
 }
