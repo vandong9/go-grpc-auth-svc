@@ -1,7 +1,6 @@
 package router
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -34,13 +33,34 @@ func (h *Handler) MakeHandlers(m middleware.Middleware) http.Handler {
 
 	cp := r.PathPrefix("/authen").Subrouter()
 	{
-		cp.Methods(http.MethodPost).Path("/api/v1/login").Handler(h.Login())
+		cp.Methods(http.MethodGet).Path("/api/v1/login").Handler(h.Login())
 	}
 	return r
 
 }
 
 func (h *Handler) Login() http.Handler {
-	fmt.Println("hello")
-	return services.HttpSever{}
+
+	return services.HttpSever{
+		h.endpoints.Login,h.options...,
+	}
 }
+
+
+// return httptransport.NewServer(
+// 	h.endpoints.GetDummyHomeInfo,
+// 	decodeGetDummyHomeInfo,
+// 	httptransport.EncodeJSONResponse,
+// 	h.options...,
+// )
+
+// func decodeGetDummyHomeInfo(_ context.Context, r *http.Request) (request interface{}, err error) {
+// 	req := model.GetDummyHomeInfoRequest{
+// 		ID: r.URL.Query().Get("id"),
+// 	}
+// 	if err := validator.New().Struct(req); err != nil {
+// 		return nil, errorkit.BadRequest(err)
+// 	}
+
+// 	return &req, nil
+// }
