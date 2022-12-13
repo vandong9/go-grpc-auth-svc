@@ -45,3 +45,59 @@ type interceptingWriter struct {
 	code    int
 	written int64
 }
+
+func ServerBefore(before ...RequestFunc) ServerOption {
+	return func(s *HttpSever) { s.before = append(s.before, before...) }
+}
+
+func PopulateRequestContext(ctx context.Context, r *http.Request) context.Context {
+	// ipRequest, _ := util.GetIP(r)
+	for k, v := range map[contextKey]string{
+		ContextKeyRequestMethod: r.Method,
+		// ContextKeyRequestURI:             r.RequestURI,
+		// ContextKeyRequestPath:            r.URL.Path,
+		// ContextKeyRequestProto:           r.Proto,
+		// ContextKeyRequestHost:            r.Host,
+		// ContextKeyRequestRemoteAddr:      r.RemoteAddr,
+		// ContextKeyRequestXForwardedFor:   r.Header.Get("X-Forwarded-For"),
+		// ContextKeyRequestXForwardedProto: r.Header.Get("X-Forwarded-Proto"),
+		// ContextKeyRequestAuthorization:   r.Header.Get("Authorization"),
+		// ContextKeyRequestReferer:         r.Header.Get("Referer"),
+		// ContextKeyRequestUserAgent:       r.Header.Get("User-Agent"),
+		// ContextKeyRequestXRequestID:      r.Header.Get("X-Request-Id"),
+		// ContextKeyRequestAccept:          r.Header.Get("Accept"),
+		// ContextKeyAccessToken:            r.Header.Get(HeaderAccessToken),
+		// ContextKeyAppID:                  r.Header.Get(HeaderAppID),
+		// ContextKeyAppKey:                 r.Header.Get(HeaderAppKey),
+		// ContextKeyAppVersion:             r.Header.Get(HeaderAppVersion),
+		// ContextKeyDeviceID:               r.Header.Get(HeaderDeviceID),
+		// ContextKeyDeviceModel:            r.Header.Get(HeaderDeviceModel),
+		// ContextKeyDeviceOSName:           r.Header.Get(HeaderDeviceOSName),
+		// ContextKeyLanguage:               r.Header.Get(HeaderLanguage),
+		// ContextKeyTimestamp:              r.Header.Get(HeaderTimestamp),
+		// ContextKeyUserID:                 r.Header.Get(HeaderUserID),
+		// ContextKeyUsername:               r.Header.Get(HeaderUsername),
+		// ContextKeyFullName:               r.Header.Get(HeaderFullName),
+		// ContextKeyMobile:                 r.Header.Get(HeaderMobile),
+		// ContextKeyEmail:                  r.Header.Get(HeaderEmail),
+		// ContextKeyClientNo:               r.Header.Get(HeaderClientNo),
+		// ContextKeyOtpType:                r.Header.Get(HeaderOtpType),
+		// ContextKeySessionID:              r.Header.Get(HeaderSessionID),
+		// ContextKeyEncryptKey:             r.Header.Get(HeaderEncryptKey),
+		// ContextKeyGender:                 r.Header.Get(HeaderGender),
+		// ContextKeyVendorUsers:            r.Header.Get(HeaderVendorUsers),
+		// ContextKeyClientInfo:             r.Header.Get(HeaderClientInfo),
+		// ContextKeyChannel:                r.Header.Get(HeaderChannel),
+		// ContextKeyOrganization:           r.Header.Get(HeaderOrganization),
+		// ContextKeyLoginChannel:           r.Header.Get(HeaderLoginChannel),
+		// ContextKeyActionBy:               r.Header.Get(HeaderActionBy),
+		// ContextKeyVIBRequestID:           r.Header.Get(HeaderVIBRequestID),
+		// ContextKeyIsDummyUser:            r.Header.Get(HeaderIsDummyUser),
+		// ContextKeySmoDeviceId:            r.Header.Get(HeaderSmoDeviceId),
+		// ContextKeyDeviceOSVersion:        r.Header.Get(HeaderDeviceOSVersion),
+		// ContextKeyIPRequest:              ipRequest,
+	} {
+		ctx = context.WithValue(ctx, k, v)
+	}
+	return ctx
+}

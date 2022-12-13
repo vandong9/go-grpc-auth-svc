@@ -1,6 +1,7 @@
 package router
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -13,18 +14,18 @@ import (
 type Handler struct {
 	endpoints endpoint.Endpoints
 	logger    logruskit.FieldLogger
-	// options   []httptransport.ServerOption
+	options   []services.ServerOption
 }
 
 func NewHandler(endpoints endpoint.Endpoints, logger logruskit.FieldLogger) *Handler {
 	return &Handler{
 		endpoints: endpoints,
 		logger:    logger,
-		// options: []httptransport.ServerOption{
-		// 	httptransport.ServerBefore(
-		// 		httptransport.PopulateRequestContext,
-		// 	),
-		// },
+		options: []services.ServerOption{
+			services.ServerBefore(
+				services.PopulateRequestContext,
+			),
+		},
 	}
 }
 
@@ -40,5 +41,6 @@ func (h *Handler) MakeHandlers(m middleware.Middleware) http.Handler {
 }
 
 func (h *Handler) Login() http.Handler {
+	fmt.Println("hello")
 	return services.HttpSever{}
 }

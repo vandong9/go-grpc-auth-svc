@@ -36,6 +36,8 @@ type ErrorHandler interface {
 	Handle(ctx context.Context, err error)
 }
 
+type ServerOption func(*HttpSever)
+
 func (s HttpSever) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	if len(s.finalizer) > 0 {
@@ -79,9 +81,9 @@ func (s HttpSever) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type RouteHandler interface {
-	HandleLogin(ctx context.Context, req models.LoginRequest) (*models.BaseResponse, error)
-}
+// type RouteHandler interface {
+// 	HandleLogin(ctx context.Context, req models.LoginRequest) (*models.BaseResponse, error)
+// }
 
 func (s *HttpSever) HandleLogin(ctx context.Context, req models.LoginRequest) (*models.BaseResponse, error) {
 	// var reqCtx = GetRequestContext(ctx)
