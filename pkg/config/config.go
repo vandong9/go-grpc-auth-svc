@@ -6,6 +6,7 @@ import (
 
 type Config struct {
 	Port         string `mapstructure:"PORT"`
+	GrpcPort     string `mapstructure:"GRPC_PORT"`
 	DBUrl        string `mapstructure:"DB_URL"`
 	JWTSecretKey string `mapstructure:"JWT_SECRET_KEY"`
 }

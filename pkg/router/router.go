@@ -1,13 +1,14 @@
 package router
 
 import (
-	"net/http"
-
+	"context"
 	"github.com/gorilla/mux"
 	logruskit "github.com/sirupsen/logrus"
 	"github.com/vandong9/go-grpc-auth-svc/pkg/endpoint"
 	"github.com/vandong9/go-grpc-auth-svc/pkg/middleware"
+	"github.com/vandong9/go-grpc-auth-svc/pkg/models"
 	"github.com/vandong9/go-grpc-auth-svc/pkg/services"
+	"net/http"
 )
 
 type Handler struct {
@@ -40,12 +41,23 @@ func (h *Handler) MakeHandlers(m middleware.Middleware) http.Handler {
 }
 
 func (h *Handler) Login() http.Handler {
-
-	return services.HttpSever{
-		h.endpoints.Login,h.options...,
-	}
+	return services.NewServer(h.endpoints.Login, decodeLoginRequest, services.EncodeJSONResponse, h.options...)
 }
 
+func decodeLoginRequest(ctx context.Context, r *http.Request) (request interface{}, err error) {
+	vars := mux.Vars(r)
+	email := vars["email"]
+	//if ok == "" {
+	//	return nil, errorkit.BadRequest("The 'cardseno' path param is required.")
+	//}
+	password := vars["password"]
+
+	req := models.LoginRequest{
+		Email:    email,
+		Password: password,
+	}
+	return req, nil
+}
 
 // return httptransport.NewServer(
 // 	h.endpoints.GetDummyHomeInfo,
